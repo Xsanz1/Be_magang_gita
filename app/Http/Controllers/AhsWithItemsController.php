@@ -269,7 +269,7 @@ class AhsWithItemsController extends Controller
                 foreach ($request->file('produk_foto') as $file) {
 
                     $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-                    $path = $file->storeAs('uploads/foto', $filename, 'public');
+                    $path = $file->storeAs('uploads/gambar', $filename, 'public');
 
                     $uploadedPaths[] = $path;
 
@@ -277,7 +277,7 @@ class AhsWithItemsController extends Controller
                         'fileable_id'   => $add_ahs->ahs_id,     // 🔥 ini penting
                         'fileable_type' => Ahs::class,       // 🔥 ini penting
                         'file_path'     => $path,
-                        'file_type'     => 'foto',
+                        'file_type'     => 'gambar',
                     ]);
                 }
             }
@@ -434,7 +434,7 @@ class AhsWithItemsController extends Controller
             if ($request->hasFile('produk_foto')) {
                 foreach ($request->file('produk_foto') as $file) {
                     $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
-                    $path = $file->storeAs('uploads/foto', $filename, 'public');
+                    $path = $file->storeAs('uploads/gambar', $filename, 'public');
 
                     $uploadedPaths[] = $path;
 
@@ -442,7 +442,7 @@ class AhsWithItemsController extends Controller
                         'fileable_id'   => $item_ahs->item_id,
                         'fileable_type' => Item::class,
                         'file_path'     => $path,
-                        'file_type'     => 'foto',
+                        'file_type'     => 'gambar',
                     ]);
                 }
             }

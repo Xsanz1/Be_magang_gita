@@ -27,8 +27,6 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        // ... (Tidak ada perubahan di sini)
-
         $request->validate([
             'provinsi' => 'nullable|string|max:255',
             'kab'      => 'nullable|string|max:255',
@@ -36,29 +34,31 @@ class ItemController extends Controller
             'item_no'  => 'nullable|string',
         ]);
 
-        $query = Item::with('vendor');
+        $query = Item::with([
+            'vendor',
+            'gambar',   // morphMany file_type = gambar
+            'dokumen',  // morphMany file_type = dokumen
+        ]);
 
         $query->when($request->filled('provinsi'), function ($q) use ($request) {
-            return $q->where('provinsi', $request->provinsi);
+            $q->where('provinsi', $request->provinsi);
         });
 
         $query->when($request->filled('kab'), function ($q) use ($request) {
-            return $q->where('kab', $request->kab);
+            $q->where('kab', $request->kab);
         });
 
         $query->when($request->filled('tahun'), function ($q) use ($request) {
-            return $q->where('tahun', $request->tahun);
+            $q->where('tahun', $request->tahun);
         });
 
         $query->when($request->filled('item_no'), function ($q) use ($request) {
-            return $q->where('item_no', 'like', '%' . $request->item_no . '%');
+            $q->where('item_no', 'like', '%' . $request->item_no . '%');
         });
-
-        $items = $query->get();
 
         return response()->json([
             'success' => true,
-            'data'    => $items,
+            'data'    => $query->get(),
         ]);
     }
     public function store(Request $request)
@@ -128,13 +128,13 @@ class ItemController extends Controller
             if ($request->hasFile('produk_foto')) {
                 foreach ($request->file('produk_foto') as $foto) {
 
-                    $path = $foto->store('uploads/foto', 'public');
+                    $path = $foto->store('uploads/gambar', 'public');
 
                     ItemFile::create([
                         'fileable_id'   => $item->item_id,   // FIXED !!!
                         'fileable_type' => Item::class,
                         'file_path'     => $path,
-                        'file_type'     => 'foto'            // FIXED !!!
+                        'file_type'     => 'gambar'            // FIXED !!!
                     ]);
                 }
             }
@@ -244,13 +244,13 @@ class ItemController extends Controller
 
             foreach ($request->file('produk_foto') as $foto) {
 
-                $path = $foto->store('uploads/foto', 'public');
+                $path = $foto->store('uploads/gambar', 'public');
 
                 ItemFile::create([
                     'fileable_id'   => $item->item_id,   // FIXED !!!
                     'fileable_type' => Item::class,
                     'file_path'     => $path,
-                    'file_type'     => 'foto'
+                    'file_type'     => 'gambar'
                 ]);
             }
         }
