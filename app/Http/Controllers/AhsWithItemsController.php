@@ -19,6 +19,84 @@ use App\Models\ItemFile;
 
 class AhsWithItemsController extends Controller
 {
+    public function get_data_ahs()
+    {
+        try {
+            $data = Ahs::with([
+                'items.item',  // relasi AhsItem → Item
+                'files',       // foto & dokumen (polymorphic)
+            ])
+                ->orderBy('ahs_id', 'desc')
+                ->get()
+                ->map(function ($ahs) {
+
+                    // Ambil item utama yang mewakili AHS (item_no = ahs)
+                    $itemAhs = Item::where('item_no', $ahs->ahs)->first();
+
+                    return [
+                        'ahs_id'     => $ahs->ahs_id,
+                        'ahs_no'     => $ahs->ahs,
+                        'deskripsi'  => $ahs->deskripsi,
+                        'satuan'     => $ahs->satuan,
+                        'provinsi'   => $ahs->provinsi,
+                        'kab'        => $ahs->kab,
+                        'tahun'      => $ahs->tahun,
+                        'harga_pokok_total' => $ahs->harga_pokok_total,
+
+                        // === ITEM HEADER AHS ===
+                        'item_ahs' => $itemAhs ? [
+                            'item_id'     => $itemAhs->item_id,
+                            'item_no'     => $itemAhs->item_no,
+                            'merek'       => $itemAhs->merek,
+                            'vendor_id'   => $itemAhs->vendor_id,
+                            'produk_deskripsi' => $itemAhs->produk_deskripsi,
+                            'spesifikasi'       => $itemAhs->spesifikasi,
+                        ] : null,
+
+                        // === FOTO ===
+                        'foto' => $ahs->files
+                            ->where('file_type', 'foto')
+                            ->map(fn($f) => asset('storage/' . $f->file_path))
+                            ->values(),
+
+                        // === DOKUMEN ===
+                        'dokumen' => $ahs->files
+                            ->where('file_type', 'dokumen')
+                            ->map(fn($f) => asset('storage/' . $f->file_path))
+                            ->values(),
+
+                        // === DETAIL ITEMS ===
+                        'items' => $ahs->items->map(function ($it) {
+                            return [
+                                'item_id' => $it->item_id,
+                                'item_no' => $it->item->item_no ?? null,
+                                'uraian'  => $it->uraian,
+                                'satuan'  => $it->satuan,
+                                'volume'  => $it->volume,
+                                'hpp'     => $it->hpp,
+                                'jumlah'  => $it->jumlah,
+                            ];
+                        }),
+
+                        'created_at' => $ahs->created_at,
+                        'updated_at' => $ahs->updated_at,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data AHS berhasil diambil',
+                'data'    => $data
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data AHS',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function generateNoAhs()
     {
         $prefix = 'AHS';
