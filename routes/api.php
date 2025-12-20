@@ -39,8 +39,8 @@ Route::post('vendors/import', [VendorController::class, 'import'])->name('vendor
 Route::get('/ahs', [AhsWithItemsController::class, 'get_data_ahs']);
 Route::get('/ahs/option-item', [AhsWithItemsController::class, 'getOptionItem']);
 Route::post('/ahs', [AhsWithItemsController::class, 'addDataAhs']);
-Route::put('/ahs/{ahs_id}', [AhsWithItemsController::class, 'update']);
-Route::delete('/{ahs_id}', [AhsWithItemsController::class, 'destroy']);
+Route::put('/ahs/{id}', [AhsWithItemsController::class, 'update']);
+Route::delete('/ahs/{id}', [AhsWithItemsController::class, 'destroy']);
 Route::get('ahs/export', [AhsWithItemsController::class, 'export'])->name('ahs.export');
 Route::get('ahs/import/template', [AhsWithItemsController::class, 'downloadImportTemplate'])->name('ahs.import.template');
 Route::post('ahs/import', [AhsWithItemsController::class, 'import'])->name('ahs.import.store');
